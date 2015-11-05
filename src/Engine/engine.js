@@ -50,28 +50,38 @@ var engine = function(){
 					  [0,0,0]];
 
 	function isWin (board, cases){
-		console.log(board);
 		var player = 0;
 		var bot = 0;
+		var win = {win: false};
 
 		_.forEach(cases, function (win_case){
-			_.forEach(win_case, function (coords){
-				var pos = board[coords.x][coords.y];
-				if(pos === 1){
-					player++;
-				} else if (pos === 2){
-					bot++;
-				}	
-			});
-		});
+			var player = 0;
+			var bot = 0;
+			if(win.win){
+				return
+			} else {
+				_.forEach(win_case, function (coords){
+					var pos = board[coords.x][coords.y];
+					console.log('x: '+coords.x + ', y: '+coords.y +', pos: ' +pos);
+					if(pos === 1){
+						player++;
+					} else if (pos === 2){
+						bot++;
+					}
 
-		if(player === 3){
-			return {win: true, winner: 'player'};
-		} else if (bot === 3){
-			return {win: true, winner: 'bot'};
-		} else {
-			return {win: false};
-		}
+					if(player === 3){
+						win = {win: true, winner: 'player'};
+						return;
+					} else if(bot ===3){
+						win = {win: true, winner: 'bot'};
+						return
+					} else {
+						win = {win: false};
+					}
+				});	
+			}
+		});
+		return win;
 	}
 
 	this.boardState = emptyBoard;
@@ -104,6 +114,7 @@ var engine = function(){
 		var case_outcome = {};
 		_.forEach(WINNING_BOARDS, function (win_cases){
 			case_outcome = isWin(self.boardState, win_cases);
+			console.log(case_outcome);
 			if(case_outcome.win){
 				deferred.resolve(case_outcome);
 				return;
@@ -115,6 +126,7 @@ var engine = function(){
 		return deferred.promise;
 	};
 
+	//TODO implement min-max algorithm to determine the bots move.
 	this.botMove = function (){
 		var deferred = q.defer();
 
